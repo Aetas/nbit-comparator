@@ -3,3 +3,8 @@
 ./Quartus\ 2\ proj/incremental_db/*
 ./Quartus\ 2\ proj/*.bak
 ./Quartus\ 2\ proj/*.q*
+./ModelSim/work/*
+./ModelSim/*.bak
+./ModelSim/*.wlf
+./ModelSim/*.mpf
+./ModelSim/*.mti
