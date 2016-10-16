@@ -1,4 +1,5 @@
 #Quartus 2 sys files
 ./Quartus\ 2\ proj/db/*
 ./Quartus\ 2\ proj/incremental_db/*
-./Quartus\ 2\ proj/output_files/*
+./Quartus\ 2\ proj/*.bak
+./Quartus\ 2\ proj/*.q*
