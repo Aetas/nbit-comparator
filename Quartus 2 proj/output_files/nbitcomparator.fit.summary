@@ -1,12 +1,12 @@
-Fitter Status : Successful - Sun Oct 16 15:55:01 2016
+Fitter Status : Successful - Sat Oct 29 21:42:35 2016
 Quartus II 64-Bit Version : 13.0.1 Build 232 06/12/2013 SP 1 SJ Web Edition
 Revision Name : nbitcomparator
 Top-level Entity Name : comparator_tb1
 Family : Cyclone III
 Device : EP3C16F484C6
 Timing Models : Final
-Total logic elements : 40 / 15,408 ( < 1 % )
-    Total combinational functions : 40 / 15,408 ( < 1 % )
+Total logic elements : 33 / 15,408 ( < 1 % )
+    Total combinational functions : 33 / 15,408 ( < 1 % )
     Dedicated logic registers : 0 / 15,408 ( 0 % )
 Total registers : 0
 Total pins : 48 / 347 ( 14 % )
