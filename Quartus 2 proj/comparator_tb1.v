@@ -8,59 +8,32 @@
 * Date: 				October 11th, 2016				*
 * Last Modified: 	October 16th, 2016				*
 *																*
-* --------------------------------------------- *
-* A note on the license:								*
-* I put all my code online so this is purely		*
-* so CU can't get pissed off if later on 			*
-* someone finds 4 years worth of project 			*
-* solutions and turns them in as their own.		*
-* My code isn't actually worth anything: 			*
-* hence MIT													*
 ************************************************/
-/*
-Copyright (c) 2016 Derek Prince
 
-Permission is hereby granted, free of charge, to any person obtaining 
-a copy of this software and associated documentation files (the "Software"), 
-to deal in the Software without restriction, including without limitation 
-the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom the 
-Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included 
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
-OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
 
 module comparator_tb1(SW, status_leds, seg7_0, seg7_1, seg7_2, seg7_3);
    //controls number of comparator instances
    parameter n = 2;
-	
+
 	//outputs
-   output wire [9:0] status_leds;
-   output wire [0:6] seg7_0, seg7_1, seg7_2, seg7_3;
+   output wire [9:0] status_leds;							//board leds
+   output wire [0:6] seg7_0, seg7_1, seg7_2, seg7_3;	//7 segment displays
    //inputs
 	input wire [9:0] SW;
-	
+
 	//connectors
 	wire eqbit, gtbit, ltbit;
    wire eqdbbit, gtdbbit, ltdbbit;		//debugging bits
-   wire negative_is_allowed = SW[9]; 	//On the DE0 borad this will be controlled by a switch
+   wire negative_is_allowed = SW[9]; 	//switch 9 tells the program that negative numbers are allowed
 
 	//registers
-   reg [2*n-1:0] x, y;
+   reg unsigned [2*n-1:0] x, y;						//inputs, really
    reg x_negative, y_negative;       	//I don't want these to be continuous assignment, thus registers
-	
+
+	//switch assignments
    always @(SW)
    begin: switchAssignments
-		x[0] = SW[4];	//Assignments are done so that x is inpu on the left, y is input on the right. left->right.
+		x[0] = SW[4];	//Assignments are done so that x is input on the left, y is input on the right. left->right.
 		x[1] = SW[5];
 		x[2] = SW[6];
 		x[3] = SW[7];
@@ -68,25 +41,24 @@ module comparator_tb1(SW, status_leds, seg7_0, seg7_1, seg7_2, seg7_3);
 		y[1] = SW[1];
 		y[2] = SW[2];
 		y[3] = SW[3];
-	
+
 		if (x_negative)		//these if statements are protected against unsigned because of how the variables are assigned. (see one block below)
-			x = ~x + 4'b0001;  	// undo 2's compliment
-		if (y_negative)		//x&y negative follow the slider, not x. 
-			y = ~y + 4'b0001;		//This allows me to change the register values without continuous assignments causing havok
+			x = ~x + 4'b0001; // undo 2's compliment
+		if (y_negative)		//x&y negative follow the slider, not x.
+			y = ~y + 4'b0001;	//This allows me to change the register values without continuous assignments causing havok
    end
-  
-   //switch values
+
    assign status_leds[9] = negative_is_allowed;
    assign status_leds[8] = 1'b0;	//This is unused, I just want a determined value
-  
+
 	always @(negative_is_allowed, SW)
 	begin: determineNegative
-		x_negative =  SW[7] & negative_is_allowed; // These are 1 if x or y are negative (respectively)
-		y_negative = SW[3] & negative_is_allowed;  
+		x_negative = SW[7] & negative_is_allowed; // These are 1 if x or y are negative (respectively)
+		y_negative = SW[3] & negative_is_allowed;
 		// They are masked with negative_is_allowed because it forces 0 values when they are unsigned
 		// i.e. positive
 	end
-  
+
    wire [n:0] eqcarry, gtcarry, ltcarry;
    //I only need an n+1 bit wide wire because there are only n stages of comparators and these link the stages but I need one more for the carry
    //otherwise final stage overflows X. Similarly, this could be done with an initial comparator block that is static to set up the sequence
@@ -97,22 +69,18 @@ module comparator_tb1(SW, status_leds, seg7_0, seg7_1, seg7_2, seg7_3);
    // I want these to be 0 initially so that it does not change the initial setup of a comparator
    // eq is 1 because it is anded with the evaluation. others are 0 because of OR
 
-   //------------Signed Conversions------------//
-   //Take care of signs by converting to unsigned if necessary.
-   //Using comparisons and if statements would be best but we're not allowed to do that. Thus, masking and gates instead.
-  
    //------------Comparison block------------//
    generate
       genvar k;
  	      for (k = 0; k < 2*n; k = k + 2)  //add 2 because we are working with pairs of bits.
- 	      //Since the module works by assuming the msbs were the bit pairs in, k+2*n-1 assures the instantiation goes down the line as genvar goes up.
+ 	      //Since the module works by assuming the msbs were the input 5bit pairs, k+2*n-1 assures the instantiation goes down the line as genvar k goes up.
 	      begin: comparestage
-			   doublencomparator dnc(.x0(x[2*n-1-k]), .x1(x[2*n-2-k]), .y0(y[2*n-1-k]), .y1(y[2*n-2-k]),
-	                              .eqin(eqcarry[k/2]), .gtin(gtcarry[k/2]), .ltin(ltcarry[k/2]), 
-	                              .eqout(eqcarry[k/2+1]), .gtout(gtcarry[k/2+1]), .ltout(ltcarry[k/2+1]));  //just trying out this syntax.
+			   doublencomparator dnc((x[2*n-1-k]), (x[2*n-2-k]), (y[2*n-1-k]), (y[2*n-2-k]),
+	                              (eqcarry[k/2]), (gtcarry[k/2]), (ltcarry[k/2]),
+	                              (eqcarry[k/2+1]), (gtcarry[k/2+1]), (ltcarry[k/2+1]));  //just trying out this syntax.
 			end
    endgenerate
-   
+
    //------------Output Block------------//
    assign eqbit = eqcarry[n] & ~(x_negative ^ y_negative); //make sure they have the same sign: NXOR determines when bits are equal
    assign gtbit = ((~gtcarry[n] & y_negative) | (gtcarry[n] & ~x_negative)) & ~eqbit;
@@ -133,11 +101,11 @@ module comparator_tb1(SW, status_leds, seg7_0, seg7_1, seg7_2, seg7_3);
    // and g returns true when the magnitude of x is greater than the magnitude of y.
 	// The result is and-ed with eqbit's complement to catch the case of both numbers being negative but also equal.
 	// 	it only adds 3 cost and is much simpler than adding another, neraly identical function to the one from the k-map.
-  
+
    assign status_leds[7] = eqbit;
    assign status_leds[6] = gtbit;
 	assign status_leds[5] = ltbit;
-  
+
 	//------------7-Segment Display Output------------//
 	seg7 hex2(.bnum(x), .led(seg7_2));	//Using displays 2 and 0 to display negatives
 	seg7 hex0(.bnum(y), .led(seg7_0));	//on the displays just left of the number
@@ -145,15 +113,15 @@ module comparator_tb1(SW, status_leds, seg7_0, seg7_1, seg7_2, seg7_3);
 	assign seg7_1[0:5] = 6'b111111;
 	assign seg7_3[6] = ~x_negative;		//display negative signs if negative
 	assign seg7_1[6] = ~y_negative;
-  
-  
+
+
    //------------Simple debugging checker------------//
-   assign eqdbbit = x == y;
+   assign eqdbbit = (x == y) & (x_negative == y_negative);
    assign gtdbbit = ((~(x > y) & y_negative) | ((x > y) & ~x_negative)) & ~eqdbbit;	//same logic as above, just with direct arithmetic comparison
    assign ltdbbit = ~(eqdbbit | gtdbbit);
    assign status_leds[3] = eqdbbit;
    assign status_leds[2] = gtdbbit;
    assign status_leds[1] = ltdbbit;
    assign status_leds[0] = {eqdbbit, gtdbbit, ltdbbit} == {eqbit, gtbit, ltbit};	//This compares the two answers
-  
+
 endmodule //comparator_tb1
