@@ -1,16 +1,12 @@
 #Quartus 2 sys files
-'./Quartus 2 proj/db/'*
-./Quartus\ 2\ proj/incremental_db/*
-./Quartus\ 2\ proj/*.bak
-./Quartus\ 2\ proj/*.q*
+./Quartus\ 2\ proj/db
+./Quartus\ 2\ proj/incremental_db
+./Quartus\ 2\ proj/output_files
 *.qsf
 *.qws
 *.qpf
 #ModelSim files
-./ModelSim/work/*
-./ModelSim/comparator_tb1/*
-./ModelSim/_temp/*
-./ModelSim/doublencomparator/*
+/ModelSim/work
 *.bak
 *.mti
 *.mpf
