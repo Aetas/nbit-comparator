@@ -1,36 +1,38 @@
-/*
-* Derek Prince
-* Date:
-* Last Modified: 
-* License: WGAF
-*/
+/************************************************
+*																                *
+* Derek Prince												                      *
+* ECEN 2350: Digital Logic								              *
+* 2n-bit Comparator on the terasiC DE0 board		  *
+* Altera Cyclone 3 EP3C16F484							            *
+*																                *
+* Date: 				October 11th, 2016				              *
+* Last Modified: 	October 16th, 2016				        *
+*																                *
+************************************************/
 
 
 module comparator_tb1(eqbit, gtbit, ltbit);
   //controls number of comparator instances
   parameter n = 4;
   
-  //reg clk;
-  //reg [2*n-1:0] count;
+  reg clk;//clock
   
   output eqbit, gtbit, ltbit;
-  reg [2*n-1:0] x, y;
-  
-  reg x_negative, y_negative;       //I don't want these to be continuous assignment, thus registers
-  wire negative_is_allowed = 1;     //On the DE0 borad this will be controlled by a switch
+  wire eqdbbit, gtdbbit, ltdbbit, agree;		//debugging bits
+  reg unsigned [2*n-1:0] x, y;
   
   initial begin
-    x = 8'b10000010;
-    y = 8'b00000000;
+    clk = 0;
+    x = 8'b11111111;
+    y = 8'b0;
   end
   
-  always @(negative_is_allowed)
-    begin
-      x_negative =  x[2*n-1] & negative_is_allowed; // These are 1 if x or y are negative (respectively)
-      y_negative = y[2*n-1] & negative_is_allowed;  
-      // They are masked with negative_is_allowed because it forces 0 values when they are unsigned
-      // i.e. positive
-    end
+  always #5 clk = ~clk;
+  always @(posedge clk)
+    x = x + 1;
+
+  always @(negedge x == 8'b11111111)
+    y = y + 1;
   
   wire [n:0] eqcarry, gtcarry, ltcarry;
   //I only need an n+1 bit wide wire because there are only n stages of comparators and these link the stages but I need one more for the carry
@@ -42,20 +44,6 @@ module comparator_tb1(eqbit, gtbit, ltbit);
   // I want these to be 0 initially so that it does not change the initial setup of a comparator
   // eq is 1 because it is anded with the evaluation. others are 0 because of OR
 
-  //------------Signed Conversions------------//
-  //Take care of signs by converting to unsigned if necessary.
-  //Using comparisons and if statements would be best but we're not allowed to do that. Thus, masking and gates instead.
-  
-  //***** Might need to have another if statement enclosing this one watching a switch that tells the board if numbers are signed
-  //***** Otherwise it will assume large unsigned numbers are signed.
-  always @(x_negative, y_negative)
-    begin
-      if (x_negative)
-        x = ~x + 1'b1;  // undo 2's compliment
-      if (y_negative)
-        y = ~y + 1'b1;
-    end
-  
   //------------Comparison block------------//
   generate
     genvar k;
@@ -67,30 +55,28 @@ module comparator_tb1(eqbit, gtbit, ltbit);
   endgenerate
   
   //------------Output Block------------//
-  assign eqbit = eqcarry[n] & ~(x_negative ^ y_negative); //make sure they have the same sign: NXOR determines when bits are equal
-  assign gtbit = (~gtcarry[n] & y_negative) | (gtcarry[n] & ~x_negative);
-  assign ltbit = ltcarry[n] | ~(eqbit | gtbit);
-  // gtbit was the most complicated function since it has so many cases
-  // Fortunately, k-maps exists so I just did that.
-  //
-  // g\xy  00  01  11  10
-  //      -----------------
-  //    0 | 0 | 1 | 1 | 0 |
-  //      -----------------
-  //    1 | 1 | 1 | 0 | 0 |
-  //      -----------------
-  //
-  //    f(x,y,g) = g'y + gx'
-  //
-  // where x and y are 1 when their respective numbers are negative
-  // and g returns true when the magnitude of x is greater than the magnitude of y.
+  assign eqbit = eqcarry[n];
+  assign gtbit = gtcarry[n];
+  assign ltbit = ltcarry[n];
   
+  assign eqdbbit = x == y;
+  assign gtdbbit = x > y;
+  assign ltdbbit = ~(eqdbbit | gtdbbit);
+  assign agree = {eqdbbit, gtdbbit, ltdbbit} == {eqbit, gtbit, ltbit};
   
-  always @(eqbit, ltbit, gtbit)
+  always @(agree)
   begin
-    $display("eqbit: %b", eqbit);
-    $display("gtbit: %b", gtbit);
-    $display("ltbit: %b", ltbit);
+    if (~agree)
+      begin: monitor_output
+        $display("Simulation disagreed on x = %b , y = %b", x, y);
+        $display("eqbit: %b , eqdbbit: %b", eqbit, eqdbbit);
+        $display("gtbit: %b , gtdbbit: %b", gtbit, gtdbbit);
+        $display("ltbit: %b , ltdbbit: %b", ltbit, ltdbbit);
+      end
   end
   
+  always @(x[2*n-1])
+    if ((x == 8'b0) && (y == 8'b11111111))
+      $display("All variations compared");
+      
 endmodule //comparator_tb1
