@@ -5,6 +5,9 @@
 *.qsf
 *.qws
 *.qpf
+
+/Quartus\ 2\ proj/output_files/!nbitcomparator.sof
+
 #ModelSim files
 /ModelSim/work
 /ModelSim/transcript
