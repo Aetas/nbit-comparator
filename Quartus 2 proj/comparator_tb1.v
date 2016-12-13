@@ -1,14 +1,37 @@
 /************************************************
-*																*
-* Derek Prince												*
-* ECEN 2350: Digital Logic								*
-* 2n-bit Comparator on the terasiC DE0 board		*
-* Altera Cyclone 3 EP3C16F484							*
-*																*
-* Date: 				October 11th, 2016				*
-* Last Modified: 	October 16th, 2016				*
-*																*
-************************************************/
+*                                               *
+* Derek Prince                                  *
+* ECEN 2350: Digital Logic                      *
+* 2n-bit Comparator on the terasiC DE0 board    *
+* Altera Cyclone 3 EP3C16F484                   *
+*	                                              *
+* Date: 				October 11th, 2016              *
+* Last Modified: 	October 16th, 2016            *
+*                                               *
+*************************************************
+
+Copyright (c) 2016 Derek Prince
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
 
 
 module comparator_tb1(SW, status_leds, seg7_0, seg7_1, seg7_2, seg7_3);
@@ -27,7 +50,7 @@ module comparator_tb1(SW, status_leds, seg7_0, seg7_1, seg7_2, seg7_3);
    wire negative_is_allowed = SW[9]; 	//switch 9 tells the program that negative numbers are allowed
 
 	//registers
-   reg unsigned [2*n-1:0] x, y;						//inputs, really
+   reg unsigned [2*n-1:0] x, y;				//inputs, really
    reg x_negative, y_negative;       	//I don't want these to be continuous assignment, thus registers
 
 	//switch assignments

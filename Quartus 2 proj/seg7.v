@@ -1,21 +1,43 @@
 /************************************************
-*																*
-* Derek Prince												*
-* ECEN 2350: Digital Logic								*
-* 2n-bit Comparator on the terasiC DE0 board		*
-* Altera Cyclone 3 EP3C16F484							*
-*																*
-* Date: 				October 11th, 2016				*
-* Last Modified: 	October 16th, 2016				*
-*																*
-************************************************/
+*                                               *
+* Derek Prince                                  *
+* ECEN 2350: Digital Logic                      *
+* 2n-bit Comparator on the terasiC DE0 board    *
+* Altera Cyclone 3 EP3C16F484                   *
+*	                                              *
+* Date: 				October 11th, 2016              *
+* Last Modified: 	October 16th, 2016            *
+*                                               *
+*************************************************
+
+Copyright (c) 2016 Derek Prince
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
 
 module seg7(bnum, led);
 
 input [3:0] bnum;			//input number
 output reg [0:6] led;	//output
 				//I did this in reverse originally so the vector declaration is reversed instead of redoing it
-always @(bnum)	
+always @(bnum)
 	case(bnum)
 		0: led = 7'b0000001;		//0
 		1: led = 7'b1001111;		//1
