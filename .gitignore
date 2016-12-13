@@ -7,6 +7,7 @@
 *.qpf
 #ModelSim files
 /ModelSim/work
+/ModelSim/transcript
 *.bak
 *.mti
 *.mpf
